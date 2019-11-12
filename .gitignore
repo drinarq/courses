@@ -4,4 +4,3 @@ node_modules/
 #IntelliJ IDEA project setting
 .idea/
 
-package-lock.json
