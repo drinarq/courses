@@ -1,6 +1,6 @@
 const Sequelize = require("sequelize");
-const DBPassword=require("F:\\courses\\eShop\\helpers\\helper.js");
-sequelize = new Sequelize("eShop", "root", DBPassword, {
+
+sequelize = new Sequelize("eShop", "root", "01282000vladdd", {
     dialect: "mysql",
     host: "localhost"
 });
