@@ -21,7 +21,6 @@ class MarkRep {
     // }
 
     async addMark(userId,value,productId) {
-        console.log(value);
         await MarkModel.create({
             user_id: userId,
             value: value,
