@@ -1,0 +1,8 @@
+{"secret": "stanislav",
+"resave": true,
+"saveUninitialized": true,
+"cookie": {
+"secure": false,
+"maxAge": 3600000
+}
+}
