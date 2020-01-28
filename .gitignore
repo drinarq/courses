@@ -1,6 +1,0 @@
-#node modules
-node_modules/
-
-#IntelliJ IDEA project setting
-.idea/
-
