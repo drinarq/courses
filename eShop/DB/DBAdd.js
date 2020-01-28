@@ -2,7 +2,10 @@ const Sequelize = require("sequelize");
 
 sequelize = new Sequelize("eShop", "root", "01282000vladdd", {
     dialect: "mysql",
-    host: "localhost"
+    host: "localhost",
+    define:{
+        timestamps: false
+    }
 });
 
 sequelize.sync().then(result=>{
