@@ -1,7 +1,6 @@
-const sequelize=require("F:\\courses\\eShop\\DB\\DBAdd.js");
+const sequelize=require('../DB/DBAdd.js');
 const Sequelize = require("sequelize");
-console.log(sequelize);
-const product = sequelize.define("goods", {
+const product =sequelize.define("goods", {
     id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
@@ -24,13 +23,17 @@ const product = sequelize.define("goods", {
         type:Sequelize.INTEGER,
         allowNull:true
     },
-    discription:{
+    description:{
         type:Sequelize.STRING,
         allowNull:true
     },
     update_date:{
         type:Sequelize.DATE,
-        allowNull:false
+        // allowNull:false
     }
+});
+
+product.beforeCreate((product,options)=>{
+    product.update_date=new Date();
 });
 module.exports=product;
