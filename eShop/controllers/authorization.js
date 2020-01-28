@@ -1,30 +1,36 @@
-const passport=require('../passport.js');
+const passport = require('passport');
+const HTTPStatus = require('http-status-codes');
 
-class Login{
-    login(req,res,next){
-        passport.authenticate('local',(err,user,info)=>{
-            if(err){
-                next(err);
+const UnauthorizedExeption = require('../errors/ValidationError.js');
+const resMessage = require('../helpers/helper.js');
+
+class LoginController {
+    login(req, res, next) {
+        passport.authenticate("local", (err, user, info) => {
+            if (err) {
+                return next(err);
             }
 
-            if(!user){
-                next()
+            if (!user) {
+                next(new UnauthorizedExeption(info.message));
             }
-            req.logIn(user,err=>{
-                if(err){
-                    next(err);
+
+            req.logIn(user, err => {
+                if (err) {
+                    return next(err);
                 }
-                res.send("autorized");
-            })
+
+                res.status(HTTPStatus.OK).json(resMessage.OK(HTTPStatus.OK, 'logged in.'));
+            });
         })
-        (req,res,next);
+        (req, res, next);
     }
 
-    logout(req,res,next){
+    logout(req, res, next) {
+        req.logOut();
 
-            req.logout();
-        res.send("logOut sucsess;");
+        res.status(HTTPStatus.OK).json(resMessage.OK(HTTPStatus.OK, 'logged out.'));
     }
 }
 
-moduele.exports=Login();
+module.exports = new LoginController();
