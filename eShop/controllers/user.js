@@ -3,6 +3,8 @@ const userService=require('../services/user.js');
 const HTTPStatus = require('http-status-codes');
 const EmptyResExeption = require('../errors/EmptyRsponseError.js');
 const resMessage = require('../helpers/helper.js');
+const NotFound=require('../errors/NotFound.js');
+const  roleService=require('../services/role.js');
 
 class User{
     async getMe(req, res, next) {
@@ -11,11 +13,11 @@ class User{
             const user = await userService.getUser(id);
 
             if (!user) {
-                next(new EmptyResExeption('Empty response body.'));
+                next(new EmptyResExeption('Empty response body'));
             }
 
             res.status(HTTPStatus.OK);
-            res.json(resMessage.OK(HTTPStatus.OK, 'Get me.', user));
+            res.json(resMessage.OK(HTTPStatus.OK, 'Get me', user));
         } catch (err) {
             next(err);
         }
@@ -41,7 +43,7 @@ class User{
              const users=await userService.getUsers();
              res.json(users);
              if (!users || !users.length) {
-                 next(new EmptyResExeption('Empty result body.'));
+                 next(new NotFound('Empty result body.'));
              }
              res.status(HTTPStatus.OK);
              res.json(resMessage.OK(HTTPStatus.OK, 'Get all users.', users));
@@ -71,7 +73,7 @@ class User{
              const user=await userService.getUser(id);
 
              if (!user) {
-                 next(new EmptyResExeption('Empty result body.'));
+                 next(new NotFound('Empty result body.'));
              }
              res.status(HTTPStatus.OK);
              res.json(resMessage.OK(HTTPStatus.OK, 'Get user.', user));
@@ -96,15 +98,20 @@ class User{
          }
      }
 
-     async addUserRole(req, res, next) {
+     async updateUserRole(req, res, next) {
         try {
-            const id = req.params.id;
-            const role = req.body.value;
+            const userId = req.params.id;
+            const roleId = req.body.role_id;
+            const role= await roleService.getRole(roleId);
 
-            await userService.addUserRole(id, role);
+            if(!role){
+                next(new NotFound(`role with ${roleId} not found`));
+            }
 
-            res.status(HTTPStatus.CREATED);
-            res.json(resMessage.OK(HTTPStatus.CREATED, 'User role added.'));
+            await userService.updateUserRole(userId, roleId);
+
+            res.status(HTTPStatus.OK);
+            res.json(resMessage.OK(HTTPStatus.OK, 'user role updated.'));
         } catch (err) {
             next(err);
         }
@@ -147,5 +154,6 @@ class User{
             next(err);
         }
     }
+
 }
 module.exports= new User();

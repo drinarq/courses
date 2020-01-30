@@ -10,8 +10,13 @@ class Goods{
        try {
            const product=req.body;
 
+           if(!product){
+                next(new EmptyResExeption('Empty response body'));
+            }
            await goodsService.addProduct(product);
-           res.json(req.body);
+
+           res.status(HTTPStatus.OK);
+           res.json(res.message.OK(HTTPStatus.OK,'product added'),product);
        }
        catch(err){
             next(err);
@@ -22,8 +27,12 @@ class Goods{
        try{
 
            const goods=await goodsService.getGoods();
-            console.log(goods);
-            res.json(goods);
+
+           if(!goods){
+               next(new NotFound('goods not found'));
+           }
+           res.status(HTTPStatus.OK);
+           res.json(resMessage.OK(HTTPStatus.OK,'products found',goods));
        }
        catch (err) {
            next(err);
@@ -36,7 +45,8 @@ class Goods{
 
            await goodsService.deleteProduct(id);
 
-           res.send(`prodct ${id} deleted`);
+           res.status(HTTPStatus.OK);
+           res.json(resMessage.OK(HTTPStatus.OK,`prodct ${id} deleted`));
        }
        catch (err) {
            next(err);
@@ -44,10 +54,15 @@ class Goods{
     }
     async getProduct(req,res,next){
        try{
-           const id=req.params.id;
 
+           const id=req.params.id;
            const product=await goodsService.getProduct(id);
-           res.json(product);
+
+           if(!product){
+               next(new NotFound('Empty result body'));
+           }
+
+           res.json(resMessage.OK(HTTPStatus.OK,'product found',product));
        }
        catch (err) {
            next(err);
@@ -60,6 +75,9 @@ class Goods{
                const field=req.body;
 
                await goodsService.updateProduct(id,field);
+
+               res.status(HTTPStatus.OK);
+               res.json(resMessage.OK(HTTPStatus.OK,`product updated`))
            }
            catch (err) {
                next(err);
@@ -70,7 +88,8 @@ class Goods{
             try{
                 const goods=await goodsService.getGoodsByName();
 
-                res.json(goods);
+                res.status(HTTPStatus.OK);
+                res.json(resMessage.OK(HTTPStatus.OK,'product sort by name',goods));
             }
             catch (err) {
                 next(err);
@@ -81,8 +100,9 @@ class Goods{
     async getGoodsByUpDate(req,res,next){
         try{
             const goods=await goodsService.getGoodsByUpDate();
-            console.log(goods);
-            res.json(goods);
+            res.status(HTTPStatus.OK);
+            res.json(resMessage.OK(HTTPStatus.OK,'product sort by update',goods));
+
         }
         catch (err) {
             next(err);
@@ -94,7 +114,9 @@ class Goods{
         try{
             const goods=await goodsService.getGoodsWithImage();
 
-            res.json(goods);
+            res.status(HTTPStatus.OK);
+            res.json(resMessage.OK(HTTPStatus.OK,'product with image',goods));
+
         }
         catch (err) {
             next(err);
@@ -106,8 +128,8 @@ class Goods{
        try{
            const productId=req.params.id;
            const userId=req.user.id;
-           const value=req.body.mark;
-            if(goodsService.getProduct(productId)) {
+           const value=req.body.value;
+            if(await goodsService.getProduct(productId)) {
                 const mark = await goodsService.setMark(userId, value, productId);
 
            res.status(HTTPStatus.OK);
