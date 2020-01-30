@@ -1,4 +1,4 @@
-const adminConst = require('../helpers/constRole.js');
+const adminConst = require('../constants/constRole.js');
 const NotEnoughRootsExeption = require('../errors/RootsExeption.js');
 const UnauthorizedExeption = require('../errors/UnautorizedExeption.js');
 const RoleService=require('../services/role.js');
