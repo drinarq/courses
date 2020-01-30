@@ -6,7 +6,7 @@ const roleShema = require('../shemas/role.js');
 const isAutorized=require('../middleware/isAuthorized.js');
 const validation=require('../middleware/validation.js');
 const adminCheck=require('../middleware/adminCheck.js');
-router.post("/UserAdd",UserController.userAdd);
+router.post("/UserAdd",validation(userShema.add),UserController.userAdd);
 
 router.use(isAutorized);
 router.get('/roles/:id', UserController.getUserRole);
@@ -18,7 +18,7 @@ router.delete('/me',UserController.sendReq);
 
  router.use(adminCheck);
 router.get("/GetAll",UserController.getUsers);
-router.post('/roles/:id', validation(roleShema.add), UserController.addUserRole);
+router.put('/:id/role',UserController.updateUserRole);
 router.get('/:id', UserController.getUser);
 router.put('/:id', validation(userShema.update), UserController.updateUser);
 router.delete('/:id', UserController.deleteUser);

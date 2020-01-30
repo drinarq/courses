@@ -13,7 +13,7 @@ router.get("/",GoodsController.getGoods);
 router.get("/sort/name",GoodsController.getGoodsByName);
 router.get("/sort/UpDate",GoodsController.getGoodsByUpDate);
 router.get("/sort/image",GoodsController.getGoodsWithImage);
-router.post("/product/:id",GoodsController.setMark);
+router.post("/product/:id",validation(MarkShema.add),GoodsController.setMark);
 router.delete("/product/:id",GoodsController.deleteMark);
 
 router.use(adminCheck);
