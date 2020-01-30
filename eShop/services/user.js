@@ -49,7 +49,7 @@ class User{
                 `User with id ${id} does not send delete request.`
             );
         }
-
+        await roleService.delUserRole(id);
         await userRep.deleteUser(id);
     }
 
@@ -63,23 +63,6 @@ class User{
         await userRep.updateUser(id,field);
     }
 
-    async addUserRole(id, value) {
-        const user = await this.getUser(id);
-
-        if (!user) {
-            throw new NotFound(`User with id ${id} not found!`);
-        }
-
-        const role = await roleService.getRoleByValue(value);
-
-        if (!role) {
-            throw new NotFound(`Role '${role}' not found!`);
-        }
-
-        await user.addRole(role, {
-            through: { userId: user.id, roleId: role.id }
-        });
-    }
 
     async getUserRole(id) {
         const user = await this.getUser(id);
@@ -99,9 +82,12 @@ class User{
     async sendReq(id) {
         await userRep.sendReq(id, true);
     }
-    async deleteAllUsers() {
-        await userRep.deleteAllUsers();
+
+    async updateUserRole(userId,roleId){
+        await roleService.updateUserRole(userId,roleId);
     }
+
+
 }
 
 module.exports= new User();
