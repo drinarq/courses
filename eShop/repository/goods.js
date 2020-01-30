@@ -37,7 +37,7 @@ class Goods {
     }
 
     async updateProduct(id,field){
-        const product=await this.getProduct(id);
+        const product=await goodsModule.findOne({where:{id:id}});
         const date={update_date:new Date()};
         await product.update(field);
         await product.update(date);

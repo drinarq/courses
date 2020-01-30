@@ -39,10 +39,22 @@ class RolesRepository {
         });
     }
 
+    async delUserRole(userId){
+        await userRoleModel.destroy({where:{user_id:userId}});
+    }
+
     async getUserRole(id){
         const role_id=await userRoleModel.findOne({where:{user_id:id}});
         const user_role=await roleModel.findOne({attributes:['value'],where:{id:role_id.dataValues.role_id}});
         return user_role;
+    }
+
+    async updateUserRole(userId,roleId){
+        const user=await userRoleModel.findOne({where:{user_id:userId}});
+        console.log(user);
+        await user.update({
+            role_id:roleId
+            });
     }
 }
 

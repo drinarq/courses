@@ -1,5 +1,6 @@
 const userModel=require('../models/user.js');
 
+
 class User{
     async deleteAllUsers() {
         await userModel.destroy({ where: {} });
