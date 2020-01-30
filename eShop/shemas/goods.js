@@ -13,10 +13,11 @@ class GoodsShema {
 
         this.update = Joi.object().keys({
             name: Joi.string(),
+            price: Joi.number(),
+            image: Joi.string(),
+            amount: Joi.number(),
             description: Joi.string(),
-            img: Joi.string(),
-            showStart: Joi.date(),
-            showEnd: Joi.date(),
+            update_date:Joi.date()
         });
     }
 }

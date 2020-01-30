@@ -9,12 +9,6 @@ class UserShemas {
             last_name: Joi.string(),
         });
 
-        this.update = Joi.object().keys({
-            email: Joi.string().email(),
-            password: Joi.forbidden(),
-            first_name: Joi.string(),
-            last_name: Joi.string(),
-        });
     }
 }
 
