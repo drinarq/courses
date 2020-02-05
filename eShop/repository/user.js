@@ -1,5 +1,5 @@
 const userModel=require('../models/user.js');
-
+const CronJob=require('cron').CronJob;
 
 class User{
     async deleteAllUsers() {
@@ -39,10 +39,21 @@ class User{
 
         await user.update(field);
     }
+
     async sendReq(id, value) {
         const user = await this.getUser(id);
         await user.update({ delReq: value });
     }
+
+    async getReqUsers(){
+        const users= await userModel.findAll({where:{delReq:1}});
+
+        return users;
+    }
+
+
 }
+
+
 
 module.exports= new User();

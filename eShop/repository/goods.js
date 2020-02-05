@@ -1,23 +1,47 @@
 const goodsModule=require("../models/goods.js");
 const markRep=require("./mark.js");
 const op=require('sequelize').Op;
+const fs=require('fs');
+const isEmpty=require('../helpers/isEmpty.js');
 class Goods {
 
     async addProduct(product){
-        await goodsModule.create(product)
+        await goodsModule.create(product);
     }
 
-    async getGoods(){
-        const goods= await goodsModule.findAll();
+    async getGoods(sort){
+        let result=[];
+        let zero=[];
+        let goods=[];
 
-        for(let value of goods){
-            let productId=value.id;
-            value.dataValues["Marks amount"]=await markRep.markCount(productId);
-            value.dataValues["TotalMark"]=await markRep.totalMark(productId);
+        if(isEmpty(sort)) {
+            goods = await goodsModule.findAll();
+        }
+
+        else if(sort.sortBy==='image'){
+            goods=await goodsModule.findAll({where:{image: {[op.ne]: null},amount:{[op.gt]:0}}});
+            zero=await goodsModule.findAll({where: {image: {[op.ne]: null},amount:0}});
+            console.log(zero);
+
+        }
+        else{
+            goods=await goodsModule.findAll({where:{amount:{[op.gt]:0}},order:[[sort.sortBy,'ASC']]});
+
+            zero=await goodsModule.findAll({where:{amount:0},order:[[sort.sortBy,'ASC']]});
+
 
         }
 
-        return goods;
+        result=goods.concat(zero);
+
+        for(let value of result){
+            let productId=value.id;
+            value.dataValues["Marks amount"]=await markRep.markCount(productId);
+            value.dataValues["TotalMark"]=await markRep.totalMark(productId);
+        }
+
+
+        return result;
     }
 
     async deletePoduct(id){
@@ -43,57 +67,7 @@ class Goods {
         await product.update(date);
     }
 
-    async getGoodsByName(){
-        const goods=await goodsModule.findAll({where:{amount:{[op.gt]:0}},order:[['name','ASC']]});
 
-        const zero=await goodsModule.findAll({where:{amount:0},order:[['name','ASC']]});
-
-        const result=goods.concat(zero);
-
-        for(let value of result){
-            let productId=value.id;
-            value.dataValues["Marks amount"]=await markRep.markCount(productId);
-            value.dataValues["TotalMark"]=await markRep.totalMark(productId);
-
-        }
-        return result;
-    }
-
-
-    async getGoodsByUpDate(){
-        const goods=await goodsModule.findAll({where:{amount:{[op.gt]:0}},order:[['update_date','ASC']]});
-
-        const zero=await goodsModule.findAll({where:{amount:0},order:[['update_date','ASC']]});
-
-        const result=goods.concat(zero);
-
-        for(let value of result){
-            let productId=value.id;
-            value.dataValues["Marks amount"]=await markRep.markCount(productId);
-            value.dataValues["TotalMark"]=await markRep.totalMark(productId);
-
-        }
-
-        return result;
-    }
-
-    async getGoodsWithImage(){
-        const goods=await goodsModule.findAll({where:{image: {[op.ne]: null},amount:{[op.gt]:0}}});
-
-        const zero=await goodsModule.findAll({where: {image: {[op.ne]: null},amount:0}});
-
-        const result=goods.concat(zero);
-
-        for(let value of result){
-            let productId=value.id;
-            value.dataValues["Marks amount"]=await markRep.markCount(productId);
-            value.dataValues["TotalMark"]=await markRep.totalMark(productId);
-            console.log(value);
-
-        }
-
-        return result;
-    }
 
     async setMark(userId,value,productId){
         if (await markRep.getMark(productId,userId)){
