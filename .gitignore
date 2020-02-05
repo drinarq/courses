@@ -1,0 +1,4 @@
+#ignore .idea
+.idea/
+#priject modules
+node_modules/
