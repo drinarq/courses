@@ -4,6 +4,11 @@ const HTTPStatus = require('http-status-codes');
 const resMessage = require('../helpers/helper.js');
 const EmptyResExeption = require('../errors/EmptyRsponseError.js');
 const NotFound=require('../errors/NotFound.js');
+const IncorrectFormatExeption=require('../errors/IncorrectFormatExeption.js');
+const validationError=require('../errors/ValidationError.js');
+const fs=require('fs');
+const path=require('path');
+const isEmpty=require('../helpers/isEmpty.js');
 
 class Goods{
    async goodsAdd(req,res,next){
@@ -13,10 +18,11 @@ class Goods{
            if(!product){
                 next(new EmptyResExeption('Empty response body'));
             }
+
            await goodsService.addProduct(product);
 
            res.status(HTTPStatus.OK);
-           res.json(res.message.OK(HTTPStatus.OK,'product added'),product);
+           res.json(resMessage.OK(HTTPStatus.OK,'product added',product));
        }
        catch(err){
             next(err);
@@ -25,8 +31,9 @@ class Goods{
 
     async getGoods(req,res,next){
        try{
+           const sort=req.query;
 
-           const goods=await goodsService.getGoods();
+           const goods=await goodsService.getGoods(sort);
 
            if(!goods){
                next(new NotFound('goods not found'));
@@ -42,11 +49,16 @@ class Goods{
     async deleteProduct(req,res,next){
        try{
            const id= req.params.id;
-
+           const product= await goodsService.getProduct(id)
+           if(isEmpty(product)){
+               next(new NotFound(`product with ${id} not found`));
+           }
+            else{
            await goodsService.deleteProduct(id);
 
            res.status(HTTPStatus.OK);
-           res.json(resMessage.OK(HTTPStatus.OK,`prodct ${id} deleted`));
+           res.json(resMessage.OK(HTTPStatus.OK,`product ${id} deleted`));
+           }
        }
        catch (err) {
            next(err);
@@ -57,12 +69,13 @@ class Goods{
 
            const id=req.params.id;
            const product=await goodsService.getProduct(id);
-
-           if(!product){
-               next(new NotFound('Empty result body'));
+           if(isEmpty(product)){
+               next(new NotFound(`product with ${id} not found`));
            }
+           else{
 
-           res.json(resMessage.OK(HTTPStatus.OK,'product found',product));
+               res.json(resMessage.OK(HTTPStatus.OK,'product found',product));
+           }
        }
        catch (err) {
            next(err);
@@ -73,71 +86,38 @@ class Goods{
            try{
                const id=req.params.id;
                const field=req.body;
-
-               await goodsService.updateProduct(id,field);
-
-               res.status(HTTPStatus.OK);
-               res.json(resMessage.OK(HTTPStatus.OK,`product updated`))
+               const product=goodsService.getProduct(id);
+               if(isEmpty(product)) {
+                   next(new NotFound(`product with ${id} not found`));
+               }
+               else{
+                   await goodsService.updateProduct(id, field);
+                   res.status(HTTPStatus.OK);
+                   res.json(resMessage.OK(HTTPStatus.OK,`product updated`))
+               }
            }
            catch (err) {
                next(err);
            }
         }
 
-      async getGoodsByName(req,res,next){
-            try{
-                const goods=await goodsService.getGoodsByName();
 
-                res.status(HTTPStatus.OK);
-                res.json(resMessage.OK(HTTPStatus.OK,'product sort by name',goods));
-            }
-            catch (err) {
-                next(err);
-            }
-
-        }
-
-    async getGoodsByUpDate(req,res,next){
-        try{
-            const goods=await goodsService.getGoodsByUpDate();
-            res.status(HTTPStatus.OK);
-            res.json(resMessage.OK(HTTPStatus.OK,'product sort by update',goods));
-
-        }
-        catch (err) {
-            next(err);
-        }
-
-    }
-
-    async getGoodsWithImage(req,res,next){
-        try{
-            const goods=await goodsService.getGoodsWithImage();
-
-            res.status(HTTPStatus.OK);
-            res.json(resMessage.OK(HTTPStatus.OK,'product with image',goods));
-
-        }
-        catch (err) {
-            next(err);
-        }
-
-    }
 
     async setMark(req,res,next){
        try{
            const productId=req.params.id;
            const userId=req.user.id;
            const value=req.body.value;
-            if(await goodsService.getProduct(productId)) {
-                const mark = await goodsService.setMark(userId, value, productId);
-
-           res.status(HTTPStatus.OK);
-           res.json(resMessage.OK(HTTPStatus.OK,"mark added to",productId))
-        }
-            else {
-                    next(new NotFound(`product with ${productId} not found`));
+           const product=await goodsService.getProduct(productId);
+            if(isEmpty(product)) {
+                next(new NotFound(`product with ${productId} not found`));
             }
+            else {
+                res.status(HTTPStatus.OK);
+                res.json(resMessage.OK(HTTPStatus.OK, "mark added to", productId))
+                const mark = await goodsService.setMark(userId, value, productId);
+            }
+
        }
        catch(err){
            next(err)
@@ -148,15 +128,16 @@ class Goods{
        try{
            const userId=req.user.id;
            const productId=req.params.id;
-           if(goodsService.getProduct(productId)){
-
+           const product= await goodsService.getProduct(productId);
+           if(isEmpty(product)) {
+               next(new NotFound(`product with ${productId} not found`))
+           }
+           else{
            await goodsService.deleteMark(userId,productId);
            res.status(HTTPStatus.OK);
            res.json(resMessage.OK(HTTPStatus.OK,`mark deleted`,productId))
             }
-        else{
-            next(new NotFound(`product with ${productId} not found`))
-           }
+
        }
        catch (err) {
            next(err);
