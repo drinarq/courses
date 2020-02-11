@@ -1,23 +1,17 @@
 const express = require('express');
-
-const AdminCheck = require('../middleware/adminCheck.js');
+const isAdmin = require('../middleware/isAdmin.js');
 const validation = require('../middleware/validation.js');
 const roleShema = require('../shemas/role.js');
-
 const rolesController = require('../controllers/role.js');
-
 const router = express.Router();
+const tryCatch=require('../helpers/tryCatchWrapper.js');
 
-router.use(AdminCheck);
+router.use(isAdmin);
 
-router.get('/', rolesController.getAllRoles);
-
-router.get('/:id', rolesController.getRole);
-
-router.post('/', validation(roleShema.add), rolesController.addRole);
-
-router.delete('/:id', rolesController.deleteRole);
-
-router.put('/:id', validation(roleShema.update), rolesController.updateRole);
+router.get('/',tryCatch(rolesController.getAllRoles));
+router.get('/:id',tryCatch(rolesController.getRole));
+router.post('/',tryCatch(validation(roleShema.add), rolesController.addRole));
+router.delete('/:id',tryCatch(rolesController.deleteRole));
+router.put('/:id',tryCatch(validation(roleShema.update), rolesController.updateRole));
 
 module.exports = router;
