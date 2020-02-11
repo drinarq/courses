@@ -1,14 +1,31 @@
-const app = require('express'),
-    mailer = require('express-mailer');
+const nodeMailer=require('nodemailer');
+const env=require('../configuration/environment.js');
 
-mailer.extend(app, {
-    from: 'no-reply@example.com',
-    host: 'smtp.gmail.com', // hostname
-    secureConnection: true, // use SSL
-    port: 465, // port for secure SMTP
-    transportMethod: 'SMTP', // default is SMTP. Accepts anything that nodemailer accepts
-    auth: {
-        user: 'gmail.user@gmail.com',
-        pass: 'userpass'
+function Mailer(userEmail) {
+
+const transporter=nodeMailer.createTransport({
+    series:'gmail',
+    auth:{
+        user:env.email.login,
+        pass:env.email.pass
     }
 });
+
+const mailOptions={
+    from:env.email.login,
+    to:userEmail,
+    subject:'account on eShop.com',
+    text:'Your account on eShop.com deleted.'
+};
+
+transporter.sendMail(mailOptions,(err,info)=>{
+    if(err){
+        console.log(err);
+    }
+    else {
+        console.log('email sent: '+info.response);
+    }
+});
+};
+
+module.exports=Mailer;
