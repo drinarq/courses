@@ -6,15 +6,17 @@ const roleShema = require('../shemas/role.js');
 const isAutorized=require('../middleware/isAuthentication.js');
 const validation=require('../middleware/validation.js');
 const isAdmin=require('../middleware/isAdmin.js');
-router.post("/UserAdd",validation(userShema.add),UserController.userAdd);
 const tryCatch=require('../helpers/tryCatchWrapper.js');
 
+router.post("/UserAdd",validation(userShema.add),UserController.userAdd);
+
 router.use(isAutorized);
+router.put('/me/update/password',tryCatch(UserController.updatePassword));
 router.get('/roles/:id',tryCatch(UserController.getUserRole));
 router.get('/me',tryCatch(UserController.getMe));
 router.post('/me',tryCatch(UserController.delReq));
 router.delete('/me',tryCatch(UserController.sendReq));
-
+router.put('/me/update',tryCatch(UserController.updateMe));
 
 
 router.use(isAdmin);
