@@ -69,7 +69,7 @@ class Goods{
            }
 
            else{
-
+               res.status(HTTPStatus.OK);
                res.json(resMessage.OK(HTTPStatus.OK,'product found',product));
 
            }
@@ -134,6 +134,47 @@ class Goods{
            res.json(resMessage.OK(HTTPStatus.OK,`mark deleted`,productId));
 
         }
+    }
+
+    async addProductTag(req,res,next){
+        const productId=req.params.id;
+        const value=req.body.value;
+
+        await goodsService.addProductTag(value,productId);
+
+        res.status(HTTPStatus.OK);
+        res.json(resMessage.OK(HTTPStatus.OK, "tag added",));
+
+    }
+
+    async delProductTag(req,res,next){
+        const productId=req.params.id;
+
+        await goodsService.delProductTag(productId);
+
+        res.status(HTTPStatus.OK);
+        res.json(resMessage.OK(HTTPStatus.OK, "tag deleted",));
+
+    }
+
+    async getProductTags(req,res,next){
+        const productId=req.params.id;
+
+        const tags=await goodsService.getProductTags(productId);
+
+        res.status(HTTPStatus.OK);
+        res.json(resMessage.OK(HTTPStatus.OK, "tags:", tags));
+
+    }
+
+    async getGoodsByTag(req,res,next){
+       const tag=req.body.value;
+
+       const goods=await goodsService.getGoodsByTag(tag,paginate);
+
+       res.status(HTTPStatus.OK);
+       res.json(resMessage.OK(HTTPStatus.OK, "goods:", goods));
+
     }
 }
 

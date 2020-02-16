@@ -1,18 +1,19 @@
 const passport = require('passport');
 const HTTPStatus = require('http-status-codes');
 
-const UnauthorizedExeption = require('../errors/ValidationError.js');
+const UnauthorizedException = require('../errors/ValidationError.js');
 const resMessage = require('../helpers/helper.js');
 
 class LoginController {
     login(req, res, next) {
         passport.authenticate("local", (err, user, info) => {
+
             if (err) {
                 return next(err);
             }
 
             if (!user) {
-                next(new UnauthorizedExeption(info.message));
+                next(new UnauthorizedException(info.message));
             }
 
             req.logIn(user, err => {
@@ -21,6 +22,7 @@ class LoginController {
                 }
 
                 res.status(HTTPStatus.OK).json(resMessage.OK(HTTPStatus.OK, 'logged in.'));
+
             });
         })
         (req, res, next);

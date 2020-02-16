@@ -5,6 +5,7 @@ const EmptyResExeption = require('../errors/EmptyRsponseError.js');
 const resMessage = require('../helpers/helper.js');
 const NotFound=require('../errors/NotFound.js');
 const  roleService=require('../services/role.js');
+const RootExeption=require('../errors/RootsExeption.js');
 
 class User{
     async getMe(req, res, next) {
@@ -133,5 +134,31 @@ class User{
 
     }
 
+    async updateMe(req,res,next){
+
+        const userId=req.user.id;
+        const field=req.body;
+
+        await userService.updateMe(userId,field);
+
+        res.status(HTTPStatus.OK);
+        res.json(resMessage.OK(HTTPStatus.OK,`your profile updated`));
+    }
+
+    async updatePassword(req,res,next){
+
+        const userId=req.user.id;
+        const newPass=req.body.newPassword;
+        const pass=req.body.password;
+
+        if(req.user.validatePassword(pass,req.user.password)) {
+
+           await userService.updatePassword(userId,newPass);
+
+           res.status(HTTPStatus.OK);
+           res.json(resMessage.OK(HTTPStatus.OK,'your password updated'));
+        }
+    }
 }
+
 module.exports= new User();
