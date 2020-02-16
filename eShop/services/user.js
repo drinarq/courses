@@ -5,13 +5,17 @@ const RootsExeption = require('../errors/RootsExeption.js');
 const NotFound = require('../errors/NotFound.js');
 const AlreadyExist=require('../errors/AlredyExist.js');
 const userRoleRep=require('../repository/roles.js');
-class User{
+const nodeMailer=require('../helpers/nodeMailer.js');
+
+class UserService{
+
     async getUserByEmail(email) {
 
         const user = await usersRepository.getUserByEmail(email);
 
         return user;
     }
+
     async addUser(value){
 
         const UserExist=!!(await userRep.getUserByEmail(value.email));
@@ -57,6 +61,8 @@ class User{
 
         await roleService.delUserRole(id);
         await userRep.deleteUser(id);
+
+        nodeMailer(user.email);
     }
 
     async getUser(id){
@@ -84,6 +90,7 @@ class User{
 
         return roles;
     }
+
     async delReq(id) {
 
         await userRep.sendReq(id, false);
@@ -99,7 +106,16 @@ class User{
         await roleService.updateUserRole(userId,roleId);
     }
 
+    async updateMe(id,field){
+
+        await userRep.updateMe(id,field);
+    }
+
+    async updatePassword(id,pass){
+
+        await userRep.updatePassword(id,pass);
+    }
 
 }
 
-module.exports= new User();
+module.exports= new UserService();
