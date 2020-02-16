@@ -1,8 +1,10 @@
 const userModel=require('../models/user.js');
-const nodeMailer=require('../helpers/nodeMailer.js');
 const paginate=require('../helpers/paginate.js');
 const isEmpty=require('../helpers/isEmpty.js');
-class User{
+const hashPassword=require('../helpers/hashPassword.js');
+
+class UserRepository{
+
     async deleteAllUsers() {
         await userModel.destroy({ where: {} });
     }
@@ -35,7 +37,7 @@ class User{
 
         const user=await this.getUser(id);
         await userModel.destroy({where:{id:id}});
-        nodeMailer(user.email);
+
     }
 
     async getUser(id){
@@ -65,9 +67,23 @@ class User{
         return users;
     }
 
+    async updateMe(id,field){
+
+        const user=await this.getUser(id);
+
+        await user.update(field);
+    }
+
+    async updatePassword(id,pass){
+
+        const user=await this.getUser(id);
+        const password=hashPassword(pass);
+
+        await user.update({password:password});
+    }
 
 }
 
 
 
-module.exports= new User();
+module.exports= new UserRepository();

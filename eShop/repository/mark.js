@@ -1,26 +1,17 @@
 const MarkModel = require('../models/mark.js');
 
-class MarkRep {
+class MarkRepository {
+
     async getMark(ProductId,userId) {
+
         const mark = await MarkModel.findOne({where:{product_id:ProductId,user_id:userId}});
 
         return mark;
     }
 
 
-    // async getMarksByUserId(userId) {
-    //     const marks = await MarkModel.findAll({ where: { user_id: userId } });
-    //
-    //     return marks;
-    // }
-
-    // async getProductMarks(productId) {
-    //     const marks = await MarkModel.findAll({ where: { product_id: productId } });
-    //
-    //     return marks;
-    // }
-
     async addMark(userId,value,productId) {
+
         await MarkModel.create({
             user_id: userId,
             value: value,
@@ -29,6 +20,7 @@ class MarkRep {
     }
 
     async deleteMark(userId,ProductId) {
+
         await MarkModel.destroy({
             where:
                 { user_id: userId,
@@ -38,6 +30,7 @@ class MarkRep {
     }
 
     async updateMark(productId, newMark,userId) {
+
         const mark = await this.getMark(productId,userId);
         await mark.update({
         value:newMark
@@ -45,7 +38,9 @@ class MarkRep {
     }
 
     async markCount(productId){
+
         const count=await MarkModel.count({where:{product_id:productId}});
+
         return count;
 
     }
@@ -55,13 +50,12 @@ class MarkRep {
         const totalSum=await MarkModel.sum("value",{where:{product_id:productId}});
         const markCount=await MarkModel.count({where:{product_id:productId}});
 
-
-            if(markCount&&totalSum){
-                const totalMark=(totalSum/markCount).toFixed(1)
-            }
+        if(markCount&&totalSum){
+            const totalMark=(totalSum/markCount).toFixed(1);
+        }
 
         return totalSum;
     }
 }
 
-module.exports = new MarkRep();
+module.exports = new MarkRepository();

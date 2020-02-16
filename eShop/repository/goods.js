@@ -3,8 +3,9 @@ const markRep=require("./mark.js");
 const op=require('sequelize').Op;
 const paginate=require('../helpers/paginate.js');
 const isEmpty=require('../helpers/isEmpty.js');
+const goodsTagModel=require('../models/goodsTag.js');
 
-class Goods {
+class GoodsRepository {
 
     async addProduct(product){
 
@@ -48,7 +49,8 @@ class Goods {
         return result;
     }
 
-    async deletePoduct(id){
+    async deleteProduct(id){
+
         await goodsModule.destroy({where:{id:id}})
     }
 
@@ -88,8 +90,9 @@ class Goods {
     async deleteMark(userId,productId){
         await markRep.deleteMark(userId,productId);
     }
+
 }
 
 
 
-module.exports= new Goods();
+module.exports= new GoodsRepository();
