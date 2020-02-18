@@ -12,10 +12,11 @@ class GoodsService{
         const imageName=path.basename(product.image);
         const image=fs.readFileSync(product.image);
 
-        fs.writeFileSync(env.goods.uploadsPath+imageName,image);
+        const uploadsPath=env.goods.uploadsPath+imageName;
 
+        fs.writeFileSync(uploadsPath,image);
 
-        await GoodsRep.addProduct(product);
+        await GoodsRep.addProduct(product,uploadsPath);
     }
 
     async getGoods(sort){
@@ -27,7 +28,7 @@ class GoodsService{
 
     async deleteProduct(id){
 
-        await GoodsRep.deleteProduct();
+        await GoodsRep.deleteProduct(id);
     }
 
     async getProduct(id){
@@ -115,6 +116,7 @@ class GoodsService{
         return await TagService.getGoodsByTag(value);
 
     }
+
 }
 
 module.exports= new GoodsService();
