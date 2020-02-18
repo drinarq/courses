@@ -1,24 +1,28 @@
 const express=require('express');
 const goodsService=require('../services/goods.js');
-const HTTPStatus = require('http-status-codes');
 const resMessage = require('../helpers/helper.js');
 const EmptyResExeption = require('../errors/EmptyRsponseError.js');
 const NotFound=require('../errors/NotFound.js');
-const IncorrectFormatExeption=require('../errors/IncorrectFormatExeption.js');
-const validationError=require('../errors/ValidationError.js');
+const elasticSearch=require('../classes/elasticSearch.js');
 const isEmpty=require('../helpers/isEmpty.js');
+const fs=require('fs');
+
 
 class Goods{
 
    async goodsAdd(req,res,next){
 
-           const product=req.body;
+           const body=req.body;
 
            if(!product){
                 next(new EmptyResExeption('Empty response body'));
             }
 
-           await goodsService.addProduct(product);
+           const product=await goodsService.addProduct(body);
+
+           elasticSearch.addToIndex({id:product.id,
+               description:product.description},
+               'goods');
 
            res.status(HTTPStatus.OK);
            res.json(resMessage.OK(HTTPStatus.OK,'product added',product));
@@ -50,7 +54,9 @@ class Goods{
            }
 
             else{
-           await goodsService.deleteProduct(id);
+               await goodsService.deleteProduct(id);
+
+               await elasticSearch.deleteFromIndex(id,"goods");
 
            res.status(HTTPStatus.OK);
            res.json(resMessage.OK(HTTPStatus.OK,`product ${id} deleted`));
@@ -78,22 +84,22 @@ class Goods{
 
      async updateProduct(req,res,next){
 
-               const id=req.params.id;
-               const field=req.body;
-               const product=goodsService.getProduct(id);
+           const id=req.params.id;
+           const field=req.body;
+           const product=goodsService.getProduct(id);
 
-               if(isEmpty(product)) {
-                   next(new NotFound(`product with ${id} not found`));
+           if(isEmpty(product)) {
+              next(new NotFound(`product with ${id} not found`));
                }
 
-               else{
+           else{
 
-                   await goodsService.updateProduct(id, field);
-                   res.status(HTTPStatus.OK);
-                   res.json(resMessage.OK(HTTPStatus.OK,`product updated`))
+            await goodsService.updateProduct(id, field);
+            res.status(HTTPStatus.OK);
+            res.json(resMessage.OK(HTTPStatus.OK,`product updated`))
 
-               }
-        }
+       }
+   }
 
 
 
@@ -137,48 +143,55 @@ class Goods{
     }
 
     async addProductTag(req,res,next){
-        const productId=req.params.id;
-        const value=req.body.value;
+           const productId=req.params.id;
+           const value=req.body.value;
 
-        await goodsService.addProductTag(value,productId);
+           await goodsService.addProductTag(value,productId);
 
-        res.status(HTTPStatus.OK);
-        res.json(resMessage.OK(HTTPStatus.OK, "tag added",));
+           res.status(HTTPStatus.OK);
+           res.json(resMessage.OK(HTTPStatus.OK, "tag added",));
 
     }
 
     async delProductTag(req,res,next){
-        const productId=req.params.id;
+           const productId=req.params.id;
 
-        await goodsService.delProductTag(productId);
+           await goodsService.delProductTag(productId);
 
-        res.status(HTTPStatus.OK);
-        res.json(resMessage.OK(HTTPStatus.OK, "tag deleted",));
+           res.status(HTTPStatus.OK);
+           res.json(resMessage.OK(HTTPStatus.OK, "tag deleted",));
 
     }
 
     async getProductTags(req,res,next){
-        const productId=req.params.id;
+           const productId=req.params.id;
 
-        const tags=await goodsService.getProductTags(productId);
+           const tags=await goodsService.getProductTags(productId);
 
-        res.status(HTTPStatus.OK);
-        res.json(resMessage.OK(HTTPStatus.OK, "tags:", tags));
+           res.status(HTTPStatus.OK);
+           res.json(resMessage.OK(HTTPStatus.OK, "tags:", tags));
 
     }
 
-    async getGoodsByTag(req,res,next){
-       const tag=req.body.value;
+    async  getGoodsByTag(req,res,next){
+           const tag=req.body.value;
 
-       const goods=await goodsService.getGoodsByTag(tag,paginate);
+           const goods=await goodsService.getGoodsByTag(tag,paginate);
 
-       res.status(HTTPStatus.OK);
-       res.json(resMessage.OK(HTTPStatus.OK, "goods:", goods));
+           res.status(HTTPStatus.OK);
+           res.json(resMessage.OK(HTTPStatus.OK, "goods:", goods));
+
+    }
+
+    async getProductImage(req,res,next){
+           const productId=req.params.id;
+
+           const product=await goodsService.getProduct(productId);
+
+           fs.createReadStream(product.image).pipe(res);
 
     }
 }
-
-
 
 module.exports= new Goods();
 
